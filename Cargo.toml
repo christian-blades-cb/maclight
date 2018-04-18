@@ -1,0 +1,9 @@
+[package]
+name = "maclight"
+version = "0.1.0"
+authors = ["Christian Blades <cblades@pindrop.com>"]
+
+[dependencies]
+dbus = "0.6.1"
+dbus-macros = "0.2.3"
+error-chain = "0.11.0"
