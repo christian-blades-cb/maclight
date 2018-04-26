@@ -1,6 +1,7 @@
 extern crate dbus;
 #[macro_use]
 extern crate error_chain;
+extern crate xcb;
 
 mod errors {
     extern crate dbus;
@@ -115,4 +116,16 @@ fn get_light_sensor_value_apple() -> Result<u8> {
     digits
         .parse::<u8>()
         .chain_err(|| "bad response from light sensor")
+}
+
+fn set_screen_backlight(value: i32) -> Result<()> {
+    // let conn = xcb::Connection::connect(None)?;
+    // let backlight_cookie = xcb::xproto::xcb_intern_atom(&conn, true, "Backlight");
+    // xcb::ffi::xproto::xcb_intern_atom_reply(&conn, *backlight_cookie)
+    // xcb::randr::change_output_property(&conn,
+    unimplemented!();
+}
+
+fn get_screen_backlight() -> Result<i32> {
+    unimplemented!();
 }
