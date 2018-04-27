@@ -5,10 +5,13 @@ extern crate xcb;
 
 mod errors {
     extern crate dbus;
+    extern crate xcb;
     error_chain!{
         foreign_links {
             Dbus(dbus::Error);
             TypeMismatch(dbus::arg::TypeMismatchError);
+            XConnectionErr(xcb::ConnError);
+            XcbError(xcb::Error<xcb::ffi::xcb_generic_error_t>);
         }
     }
 }
@@ -20,6 +23,8 @@ use std::{thread, time};
 static HUNDRED_MILLIS: time::Duration = time::Duration::from_millis(100);
 
 fn main() {
+    //    let (conn, _) = xcb::Connection::connect(None)?;
+
     // toggle_keyboard_backlight().expect("oh no");
     let first = get_light_sensor_value_apple().expect("could not fill sample buffer");
     let mut samples: [u8; 5] = [first; 5];
@@ -118,14 +123,22 @@ fn get_light_sensor_value_apple() -> Result<u8> {
         .chain_err(|| "bad response from light sensor")
 }
 
-fn set_screen_backlight(value: i32) -> Result<()> {
-    // let conn = xcb::Connection::connect(None)?;
-    // let backlight_cookie = xcb::xproto::xcb_intern_atom(&conn, true, "Backlight");
-    // xcb::ffi::xproto::xcb_intern_atom_reply(&conn, *backlight_cookie)
-    // xcb::randr::change_output_property(&conn,
+fn x_backlight_atom(conn: &xcb::base::Connection) -> Result<u32> {
+    let backlight_cookie = xcb::xproto::intern_atom(&conn, true, "Backlight");
+    if let Ok(reply) = backlight_cookie.get_reply() {
+        return Ok(reply.atom());
+    }
+
+    let backlight_cookie = xcb::xproto::intern_atom(&conn, true, "BACKLIGHT");
+    let reply = backlight_cookie.get_reply()?;
+
+    Ok(reply.atom())
+}
+
+fn set_screen_backlight(conn: &xcb::base::Connection, atom: u32, value: i32) -> Result<()> {
     unimplemented!();
 }
 
-fn get_screen_backlight() -> Result<i32> {
+fn get_screen_backlight(conn: &xcb::base::Connection, atom: u32) -> Result<i32> {
     unimplemented!();
 }
